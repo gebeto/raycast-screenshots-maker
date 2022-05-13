@@ -1,0 +1,9 @@
+html {
+  background-color: #1c1c1c;
+}
+
+main {
+  /* max-width: 800px; */
+  width: 100%;
+  margin: 0 auto;
+}
