@@ -28,3 +28,5 @@ jobs:
         branch: gh-pages
         folder: dist
         token: ${{ secrets.GITHUB_TOKEN }}
+        git-config-name: ${{ secrets.GIT_NAME }}
+        git-config-email: ${{ secrets.GIT_EMAIL }}
