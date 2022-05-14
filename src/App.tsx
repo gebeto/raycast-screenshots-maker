@@ -82,6 +82,21 @@ const createRaycastScreenshot = async (
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = 1;
 
+  const screenshotRatio = screenshot.width / screenshot.height;
+  const spacings = ratios[screenshotRatio as keyof typeof ratios];
+  console.log(" >>> RATIO", screenshotRatio);
+
+  if (spacings) {
+    image.width = 2000;
+    image.height = 1250;
+  } else {
+    image.width = screenshot.width + 500;
+    image.height = screenshot.height + 300;
+  }
+
+  ctx.canvas.width = image.width;
+  ctx.canvas.height = image.height;
+
   ctx.drawImage(
     wallpaperImage,
     -100,
@@ -90,9 +105,6 @@ const createRaycastScreenshot = async (
     image.height + 200
   );
 
-  const screenshotRatio = screenshot.width / screenshot.height;
-  const spacings = ratios[screenshotRatio as keyof typeof ratios];
-  console.log(" >>> RATIO", screenshotRatio);
   if (spacings) {
     const screenshotWidth = spacings.width || image.width - 500;
     const screenshotHeight = spacings.height || image.height - spacings.bottom;
