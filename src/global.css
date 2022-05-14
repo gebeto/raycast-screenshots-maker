@@ -12,8 +12,6 @@ main {
 }
 
 .file-picker {
-  width: 300px;
-  height: 120px;
   background: linear-gradient(
     0deg,
     hsla(260, 86%, 2%, 1),
@@ -32,6 +30,8 @@ main {
   flex-direction: column;
   padding: 24px;
   transition-duration: 0.1s;
+
+  box-sizing: border-box;
 }
 
 .file-picker:hover {
