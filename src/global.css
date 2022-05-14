@@ -1,5 +1,5 @@
 html {
-  background-color: #05010d;
+  background-color: hsla(260, 86%, 3%, 1);
   color: #fff;
   font-family: Inter, SF Pro Display, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -16,17 +16,31 @@ main {
   height: 120px;
   background: linear-gradient(
     0deg,
-    hsla(0, 0%, 90%, 0.1),
-    hsla(0, 0%, 100%, 0.1)
+    hsla(260, 86%, 2%, 1),
+    hsla(260, 86%, 2.4%, 1)
   );
   display: block;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed rgba(255, 255, 255, 0.06);
+  border: 2px dashed rgba(255, 255, 255, 0.03);
   width: 100%;
   cursor: pointer;
+
+  color: rgba(255, 255, 255, 0.1);
+  flex-direction: column;
+  padding: 24px;
+  transition-duration: 0.1s;
+}
+
+.file-picker:hover {
+  background: linear-gradient(
+    0deg,
+    hsla(260, 86%, 1.7%, 1),
+    hsla(260, 86%, 2.9%, 1)
+  );
+  color: rgba(255, 255, 255, 0.2);
 }
 
 #upload-screenshot {

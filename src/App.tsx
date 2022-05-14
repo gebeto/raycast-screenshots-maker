@@ -10,6 +10,8 @@ import wallpaper7 from "./wallpapers/wallpaper-7.png";
 import wallpaper8 from "./wallpapers/wallpaper-8.png";
 import template from "./template.png";
 
+import ScreenshotIcon from "./ScreenshotIcon.svg?component";
+
 const ratios = {
   [1.5822784810126582]: {
     left: 250,
@@ -70,7 +72,8 @@ const wallpapers = [
 const createRaycastScreenshot = async (
   ctx: CanvasRenderingContext2D,
   wallpaper: string,
-  screenshot: HTMLImageElement
+  screenshot: HTMLImageElement,
+  composition: GlobalCompositeOperation = "overlay"
 ) => {
   const wallpaperImage = await loadImage(wallpaper);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -104,12 +107,10 @@ const createRaycastScreenshot = async (
       spacings.top,
       screenshotWidth,
       screenshotHeight
-      // image.width - 500,
-      // image.height - spacings.bottom
     );
 
-    ctx.globalCompositeOperation = "overlay";
-    ctx.globalAlpha = 0.3;
+    ctx.globalCompositeOperation = composition;
+    ctx.globalAlpha = 0.5;
 
     ctx.drawImage(wallpaperImage, 0, 0, image.width, image.height);
   } else {
@@ -136,6 +137,11 @@ function App() {
   const [ctx, setCtx] = React.useState<CanvasRenderingContext2D>();
   const [screenshots, setScreenshots] = React.useState<HTMLImageElement[]>([]);
   const [results, setResults] = React.useState<string[]>([]);
+  const debug = React.useMemo(() => {
+    return window.location.search === "?debug";
+  }, []);
+  const [composition, setComposition] =
+    React.useState<GlobalCompositeOperation>("overlay");
   const [selectedWallpaper, setSelectedWallpaper] =
     React.useState<string>(wallpaper1);
 
@@ -180,13 +186,14 @@ function App() {
         const url = await createRaycastScreenshot(
           ctx,
           selectedWallpaper,
-          screenshot
+          screenshot,
+          composition
         );
         images.push(url);
       }
       setResults(images);
     })();
-  }, [ctx, screenshots, selectedWallpaper]);
+  }, [ctx, screenshots, selectedWallpaper, composition]);
 
   return (
     <main>
@@ -203,7 +210,8 @@ function App() {
       ></canvas>
       <div>
         <label className="file-picker" htmlFor="upload-screenshot">
-          Select Raycast screenshot
+          <ScreenshotIcon style={{ marginBottom: 18 }} />
+          <span style={{ fontSize: 18 }}>Select Raycast screenshot</span>
         </label>
         <input
           id="upload-screenshot"
@@ -217,6 +225,41 @@ function App() {
           }}
         />
       </div>
+      {debug && (
+        <select
+          value={composition}
+          onChange={(e) =>
+            setComposition(e.target.value as GlobalCompositeOperation)
+          }
+        >
+          <option value="color">color</option>
+          <option value="color-burn">color-burn</option>
+          <option value="color-dodge">color-dodge</option>
+          <option value="copy">copy</option>
+          <option value="darken">darken</option>
+          <option value="destination-atop">destination-atop</option>
+          <option value="destination-in">destination-in</option>
+          <option value="destination-out">destination-out</option>
+          <option value="destination-over">destination-over</option>
+          <option value="difference">difference</option>
+          <option value="exclusion">exclusion</option>
+          <option value="hard-light">hard-light</option>
+          <option value="hue">hue</option>
+          <option value="lighten">lighten</option>
+          <option value="lighter">lighter</option>
+          <option value="luminosity">luminosity</option>
+          <option value="multiply">multiply</option>
+          <option value="overlay">overlay</option>
+          <option value="saturation">saturation</option>
+          <option value="screen">screen</option>
+          <option value="soft-light">soft-light</option>
+          <option value="source-atop">source-atop</option>
+          <option value="source-in">source-in</option>
+          <option value="source-out">source-out</option>
+          <option value="source-over">source-over</option>
+          <option value="xor">xor</option>
+        </select>
+      )}
       <div className="wallpapers">
         {wallpapers.map((wallpaper, index) => (
           <div
@@ -231,7 +274,7 @@ function App() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "1fr",
           gap: "12px",
           marginTop: "12px",
         }}
