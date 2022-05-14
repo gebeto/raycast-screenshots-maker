@@ -11,20 +11,106 @@ const ratios = {
     left: 250,
     top: 150,
     bottom: 300,
+
+    width: 0,
+    height: 0,
   },
   [1.482213438735178]: {
     left: 250,
     top: 86,
     bottom: 236,
+
+    width: 0,
+    height: 0,
   },
   [1.3489208633093526]: {
     left: 250,
     top: 86,
     bottom: 136,
+
+    width: 0,
+    height: 0,
+  },
+
+  // shadows
+  [1.47098976109215]: {
+    left: 137,
+    top: 77,
+    bottom: 0,
+
+    width: 1726,
+    height: 1174,
+  },
+
+  [1.4271523178807948]: {
+    left: 137,
+    top: 77,
+    bottom: 0,
+
+    width: 1726,
+    height: 1210,
   },
 };
 
 const wallpapers = [wallpaper1, wallpaper2, wallpaper3, wallpaper4];
+
+const createRaycastScreenshot = async (
+  ctx: CanvasRenderingContext2D,
+  wallpaper: string,
+  screenshot: HTMLImageElement
+) => {
+  const wallpaperImage = await loadImage(wallpaper);
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  const image = { width: 2000, height: 1250 };
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+
+  ctx.drawImage(
+    wallpaperImage,
+    -100,
+    -100,
+    image.width + 200,
+    image.height + 200
+  );
+
+  const screenshotRatio = screenshot.width / screenshot.height;
+  const spacings = ratios[screenshotRatio as keyof typeof ratios];
+  console.log(" >>> RATIO", screenshotRatio);
+  if (spacings) {
+    const screenshotWidth = spacings.width || image.width - 500;
+    const screenshotHeight = spacings.height || image.height - spacings.bottom;
+
+    ctx.drawImage(
+      screenshot,
+      0,
+      0,
+      screenshot.width,
+      screenshot.height,
+      spacings.left,
+      spacings.top,
+      screenshotWidth,
+      screenshotHeight
+      // image.width - 500,
+      // image.height - spacings.bottom
+    );
+
+    ctx.globalCompositeOperation = "overlay";
+    ctx.globalAlpha = 0.3;
+
+    ctx.drawImage(wallpaperImage, 0, 0, image.width, image.height);
+  } else {
+    ctx.font = "100px sans-serif";
+    ctx.fillStyle = "white";
+    ctx.fillText("Not supported image size", 10, 200);
+  }
+
+  const url = await fetch(ctx.canvas.toDataURL())
+    .then((res) => res.blob())
+    .then((blob) => URL.createObjectURL(blob));
+
+  return url;
+};
 
 const loadImage = (url: string) =>
   new Promise<HTMLImageElement>((resolve) => {
@@ -35,7 +121,7 @@ const loadImage = (url: string) =>
 
 function App() {
   const [ctx, setCtx] = React.useState<CanvasRenderingContext2D>();
-  const [screenshot, setScreenshot] = React.useState<HTMLImageElement>();
+  const [screenshots, setScreenshots] = React.useState<HTMLImageElement[]>([]);
   const [results, setResults] = React.useState<string[]>([]);
   const [selectedWallpaper, setSelectedWallpaper] =
     React.useState<string>(wallpaper1);
@@ -46,73 +132,48 @@ function App() {
       e.preventDefault();
     });
 
-    document.addEventListener("drop", (e) => {
+    const handleDrop = (e: DragEvent) => {
       e.stopPropagation();
       e.preventDefault();
 
-      handleFileChange(e.dataTransfer?.files?.[0]);
-    });
+      handleFilesChange(
+        e.dataTransfer?.files ? [...e.dataTransfer?.files] : []
+      );
+    };
+
+    document.addEventListener("drop", handleDrop);
+
+    return () => {
+      document.removeEventListener("drop", handleDrop);
+    };
   }, []);
 
-  const handleFileChange = (file?: File) => {
-    if (file) {
+  const handleFilesChange = async (files: File[]) => {
+    const uploadedScreenshots: HTMLImageElement[] = [];
+    for await (const file of files) {
       const fileUrl = URL.createObjectURL(file);
-      loadImage(fileUrl).then((image) => {
-        setScreenshot(image);
-      });
+      uploadedScreenshots.push(await loadImage(fileUrl));
     }
+    setScreenshots((screenshots) => [...screenshots, ...uploadedScreenshots]);
   };
 
   React.useEffect(() => {
     if (!ctx) return;
+    if (!selectedWallpaper) return;
 
     (async () => {
-      const wallpaper = await loadImage(selectedWallpaper);
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      const image = { width: 2000, height: 1250 };
-
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 1;
-
-      ctx.drawImage(
-        wallpaper,
-        -100,
-        -100,
-        image.width + 200,
-        image.height + 200
-      );
-
-      if (screenshot) {
-        const screenshotRatio = screenshot.width / screenshot.height;
-        const spacings = ratios[screenshotRatio as keyof typeof ratios];
-
-        ctx.drawImage(
-          screenshot,
-          0,
-          0,
-          screenshot.width,
-          screenshot.height,
-          spacings.left,
-          spacings.top,
-          image.width - 500,
-          image.height - spacings.bottom
+      const images: string[] = [];
+      for await (const screenshot of screenshots) {
+        const url = await createRaycastScreenshot(
+          ctx,
+          selectedWallpaper,
+          screenshot
         );
+        images.push(url);
       }
-
-      ctx.globalCompositeOperation = "overlay";
-      ctx.globalAlpha = 0.3;
-
-      ctx.drawImage(wallpaper, 0, 0, image.width, image.height);
-
-      if (!screenshot) return;
-
-      const url = await fetch(ctx.canvas.toDataURL())
-        .then((res) => res.blob())
-        .then((blob) => URL.createObjectURL(blob));
-
-      setResults([...results, url]);
+      setResults(images);
     })();
-  }, [ctx, screenshot]);
+  }, [ctx, screenshots, selectedWallpaper]);
 
   return (
     <main>
@@ -134,11 +195,12 @@ function App() {
         <input
           id="upload-screenshot"
           type="file"
+          multiple
           onChange={(e) => {
-            const file = e.target.files?.[0];
+            const files = e.target.files ? [...e.target.files] : [];
             e.target.value = "";
 
-            handleFileChange(file);
+            handleFilesChange(files);
           }}
         />
       </div>
