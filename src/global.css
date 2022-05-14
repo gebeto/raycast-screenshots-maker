@@ -44,7 +44,7 @@ main {
 
 .wallpapers .wallpaper {
   max-height: 100px;
-  background: red;
+  background-color: rgba(255, 255, 255, 0.04);
   border-radius: 12px;
   overflow: hidden;
   font-size: 0;
