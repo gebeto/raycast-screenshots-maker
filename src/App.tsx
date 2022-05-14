@@ -1,9 +1,13 @@
 import React from "react";
 
-import wallpaper1 from "./wallpaper-1.png";
-import wallpaper2 from "./wallpaper-2.png";
-import wallpaper3 from "./wallpaper-3.png";
-import wallpaper4 from "./wallpaper-4.png";
+import wallpaper1 from "./wallpapers/wallpaper-1.png";
+import wallpaper2 from "./wallpapers/wallpaper-2.png";
+import wallpaper3 from "./wallpapers/wallpaper-3.png";
+import wallpaper4 from "./wallpapers/wallpaper-4.png";
+import wallpaper5 from "./wallpapers/wallpaper-5.png";
+import wallpaper6 from "./wallpapers/wallpaper-6.png";
+import wallpaper7 from "./wallpapers/wallpaper-7.png";
+import wallpaper8 from "./wallpapers/wallpaper-8.png";
 import template from "./template.png";
 
 const ratios = {
@@ -32,7 +36,7 @@ const ratios = {
     height: 0,
   },
 
-  // shadows
+  // with shadows
   [1.47098976109215]: {
     left: 137,
     top: 77,
@@ -52,7 +56,16 @@ const ratios = {
   },
 };
 
-const wallpapers = [wallpaper1, wallpaper2, wallpaper3, wallpaper4];
+const wallpapers = [
+  wallpaper1,
+  wallpaper2,
+  wallpaper3,
+  wallpaper4,
+  wallpaper5,
+  wallpaper6,
+  wallpaper7,
+  wallpaper8,
+];
 
 const createRaycastScreenshot = async (
   ctx: CanvasRenderingContext2D,
