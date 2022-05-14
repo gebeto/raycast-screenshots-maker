@@ -1,6 +1,9 @@
 import React from "react";
 
 import wallpaper1 from "./wallpaper-1.png";
+import wallpaper2 from "./wallpaper-2.png";
+import wallpaper3 from "./wallpaper-3.png";
+import wallpaper4 from "./wallpaper-4.png";
 import template from "./template.png";
 
 const ratios = {
@@ -21,6 +24,8 @@ const ratios = {
   },
 };
 
+const wallpapers = [wallpaper1, wallpaper2, wallpaper3, wallpaper4];
+
 const loadImage = (url: string) =>
   new Promise<HTMLImageElement>((resolve) => {
     const image = new Image();
@@ -32,6 +37,8 @@ function App() {
   const [ctx, setCtx] = React.useState<CanvasRenderingContext2D>();
   const [screenshot, setScreenshot] = React.useState<HTMLImageElement>();
   const [results, setResults] = React.useState<string[]>([]);
+  const [selectedWallpaper, setSelectedWallpaper] =
+    React.useState<string>(wallpaper1);
 
   React.useEffect(() => {
     document.addEventListener("dragover", (e) => {
@@ -60,7 +67,7 @@ function App() {
     if (!ctx) return;
 
     (async () => {
-      const wallpaper = await loadImage(wallpaper1);
+      const wallpaper = await loadImage(selectedWallpaper);
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       const image = { width: 2000, height: 1250 };
 
@@ -120,26 +127,49 @@ function App() {
         width="2000"
         height="1250"
       ></canvas>
-      <input
-        type="file"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          e.target.value = "";
+      <div>
+        <label className="file-picker" htmlFor="upload-screenshot">
+          Select Raycast screenshot
+        </label>
+        <input
+          id="upload-screenshot"
+          type="file"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
 
-          handleFileChange(file);
-        }}
-      />
+            handleFileChange(file);
+          }}
+        />
+      </div>
+      <div className="wallpapers">
+        {wallpapers.map((wallpaper, index) => (
+          <div
+            onClick={() => setSelectedWallpaper(wallpaper)}
+            key={index}
+            data-selected={wallpaper === selectedWallpaper && "1"}
+            className="wallpaper"
+            style={{ backgroundImage: `url(${wallpaper})` }}
+          />
+        ))}
+      </div>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: "1em",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "12px",
+          marginTop: "12px",
         }}
       >
         {results.map((res) => (
-          <div key={res}>
+          <a
+            href={res}
+            target="_blank"
+            key={res}
+            style={{ borderRadius: "12px", overflow: "hidden", fontSize: "0" }}
+          >
             <img src={res} width="100%" />
-          </div>
+          </a>
         ))}
       </div>
     </main>
