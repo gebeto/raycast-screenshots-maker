@@ -108,16 +108,24 @@ const createRaycastScreenshot = async (
       screenshotWidth,
       screenshotHeight
     );
-
-    ctx.globalCompositeOperation = composition;
-    ctx.globalAlpha = 0.5;
-
-    ctx.drawImage(wallpaperImage, 0, 0, image.width, image.height);
   } else {
-    ctx.font = "100px sans-serif";
-    ctx.fillStyle = "white";
-    ctx.fillText("Not supported image size", 10, 200);
+    ctx.drawImage(screenshot, 250, 150, image.width - 500, image.height - 300);
+    console.warn(
+      "Image size is not supported, drawing with 250px and 150px offset"
+    );
+    // ctx.font = "54px sans-serif";
+    // ctx.fillStyle = "white";
+    // ctx.textAlign = "center";
+    // ctx.textBaseline = "middle";
+    // ctx.globalAlpha = 0.3;
+    // ctx.fillText("Not supported image size", image.width / 2, image.height / 2);
+    // ctx.globalAlpha = 1;
   }
+
+  ctx.globalCompositeOperation = composition;
+  ctx.globalAlpha = 0.5;
+
+  ctx.drawImage(wallpaperImage, 0, 0, image.width, image.height);
 
   const url = await fetch(ctx.canvas.toDataURL())
     .then((res) => res.blob())
