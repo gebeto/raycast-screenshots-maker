@@ -125,13 +125,6 @@ const createRaycastScreenshot = async (
     console.warn(
       "Image size is not supported, drawing with 250px and 150px offset"
     );
-    // ctx.font = "54px sans-serif";
-    // ctx.fillStyle = "white";
-    // ctx.textAlign = "center";
-    // ctx.textBaseline = "middle";
-    // ctx.globalAlpha = 0.3;
-    // ctx.fillText("Not supported image size", image.width / 2, image.height / 2);
-    // ctx.globalAlpha = 1;
   }
 
   ctx.globalCompositeOperation = composition;
